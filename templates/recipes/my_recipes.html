@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}My Recipes{% endblock %}
+
+{% block content %}
+<div class="my-recipes-page">
+    <div class="page-header">
+        <h1>My Recipes</h1>
+        <a href="{% url 'recipe_create' %}" class="btn btn-primary">Add New Recipe</a>
+    </div>
+    
+    <div class="recipe-grid">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <div class="recipe-image">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="no-image">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="recipe-info">
+                    <h3>{{ recipe.title }}</h3>
+                    <p class="recipe-meta">
+                        <span>{{ recipe.cooking_time }} mins</span>
+                        <span>{{ recipe.difficulty|title }}</span>
+                    </p>
+                    <p class="recipe-description">{{ recipe.description|truncatechars:100 }}</p>
+                    <div class="recipe-actions">
+                        <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View</a>
+                        <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-secondary">Edit</a>
+                        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-recipes">
+                <p>You haven't created any recipes yet.</p>
+                <a href="{% url 'recipe_create' %}" class="btn btn-primary">Create Your First Recipe</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}All Recipes{% endblock %}
+
+{% block content %}
+<div class="recipe-list-page">
+    <h1>All Recipes</h1>
+    
+    <div class="filters">
+        <form method="get" action="{% url 'recipe_list' %}" id="filter-form">
+            <div class="filter-group">
+                <label for="category">Category:</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="difficulty">Difficulty:</label>
+                <select name="difficulty" id="difficulty">
+                    <option value="">All Difficulties</option>
+                    <option value="easy" {% if selected_difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                    <option value="medium" {% if selected_difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="hard" {% if selected_difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    <div class="recipe-grid">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <div class="recipe-image">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="no-image">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="recipe-info">
+                    <h3>{{ recipe.title }}</h3>
+                    <p class="recipe-meta">
+                        <span>{{ recipe.cooking_time }} mins</span>
+                        <span>{{ recipe.difficulty|title }}</span>
+                    </p>
+                    <p class="recipe-description">{{ recipe.description|truncatechars:100 }}</p>
+                    <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View Recipe</a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-results">No recipes found matching your criteria.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('category');
+        const difficultySelect = document.getElementById('difficulty');
+        
+        // Auto-submit form when select fields change
+        categorySelect.addEventListener('change', function() {
+            document.getElementById('filter-form').submit();
+        });
+        
+        difficultySelect.addEventListener('change', function() {
+            document.getElementById('filter-form').submit();
+        });
+    });
+</script>
+{% endblock %}
+

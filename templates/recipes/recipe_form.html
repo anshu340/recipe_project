@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h1>{{ title }}</h1>
+    
+    <form method="post" enctype="multipart/form-data" class="recipe-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Title:</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="form-error">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">Category:</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <div class="form-error">{{ form.category.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.cooking_time.id_for_label }}">Cooking Time (minutes):</label>
+                {{ form.cooking_time }}
+                {% if form.cooking_time.errors %}
+                    <div class="form-error">{{ form.cooking_time.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.difficulty.id_for_label }}">Difficulty:</label>
+                {{ form.difficulty }}
+                {% if form.difficulty.errors %}
+                    <div class="form-error">{{ form.difficulty.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.servings.id_for_label }}">Servings:</label>
+                {{ form.servings }}
+                {% if form.servings.errors %}
+                    <div class="form-error">{{ form.servings.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description:</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="form-error">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.ingredients.id_for_label }}">Ingredients:</label>
+            {{ form.ingredients }}
+            {% if form.ingredients.errors %}
+                <div class="form-error">{{ form.ingredients.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.instructions.id_for_label }}">Instructions:</label>
+            {{ form.instructions }}
+            {% if form.instructions.errors %}
+                <div class="form-error">{{ form.instructions.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.image.id_for_label }}">Image:</label>
+            {% if recipe and recipe.image %}
+                <div class="current-image">
+                    <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" width="150">
+                    <p>Current image: {{ recipe.image.name }}</p>
+                </div>
+            {% endif %}
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="form-error">{{ form.image.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Recipe</button>
+            <a href="{% if recipe %}{% url 'recipe_detail' recipe.id %}{% else %}{% url 'recipe_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

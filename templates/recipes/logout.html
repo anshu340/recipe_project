@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-message">
+        <h1>You have been logged out</h1>
+        <p>Thank you for using Recipe Book!</p>
+        <div class="auth-links">
+            <a href="{% url 'login' %}" class="btn btn-primary">Login Again</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Go to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

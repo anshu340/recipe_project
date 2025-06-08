@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Recipe Categories{% endblock %}
+
+{% block content %}
+<div class="category-list-page">
+    <h1>Recipe Categories</h1>
+    
+    <div class="category-grid">
+        {% for category in categories %}
+            <a href="{% url 'category_detail' category.id %}" class="category-card">
+                <h2>{{ category.name }}</h2>
+                <p>{{ category.recipes.count }} recipes</p>
+            </a>
+        {% empty %}
+            <p>No categories available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

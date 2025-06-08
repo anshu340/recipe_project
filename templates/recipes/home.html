@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Recipe Book - Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Discover Delicious Recipes</h1>
+        <p>Find and share your favorite recipes with our community</p>
+        <a href="{% url 'recipe_list' %}" class="btn btn-primary">Browse Recipes</a>
+    </div>
+</section>
+
+<section class="featured-recipes">
+    <h2>Featured Recipes</h2>
+    <div class="recipe-grid">
+        {% for recipe in recipes|slice:":3" %}
+            <div class="recipe-card">
+                <div class="recipe-image">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="no-image">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="recipe-info">
+                    <h3>{{ recipe.title }}</h3>
+                    <p class="recipe-meta">
+                        <span>{{ recipe.cooking_time }} mins</span>
+                        <span>{{ recipe.difficulty|title }}</span>
+                    </p>
+                    <p class="recipe-description">{{ recipe.description|truncatechars:100 }}</p>
+                    <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View Recipe</a>
+                </div>
+            </div>
+        {% empty %}
+            <p>No recipes available yet.</p>
+        {% endfor %}
+    </div>
+    <div class="explore-more">
+        <a href="{% url 'recipe_list' %}" class="btn btn-primary">Explore More Recipes</a>
+    </div>
+</section>
+
+<section class="categories">
+    <h2>Recipe Categories</h2>
+    <div class="category-list">
+        {% for category in categories %}
+            <a href="{% url 'category_detail' category.id %}" class="category-item">
+                <h3>{{ category.name }}</h3>
+                <span>{{ category.recipes.count }} recipes</span>
+            </a>
+        {% empty %}
+            <p>No categories available yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .featured-recipes {
+        padding: 60px 0;
+    }
+
+    .featured-recipes h2 {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 2em;
+        color: #333;
+    }
+
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .explore-more {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .explore-more .btn {
+        padding: 12px 30px;
+        font-size: 1.1em;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .explore-more .btn:hover {
+        background-color: #ff5252;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 992px) {
+        .recipe-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .recipe-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+

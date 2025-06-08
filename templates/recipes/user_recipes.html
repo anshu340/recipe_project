@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Recipes{% endblock %}
+
+{% block content %}
+<div class="user-recipes-page">
+    <h1>{{ profile_user.username }}'s Recipes</h1>
+    
+    <div class="recipe-grid">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <div class="recipe-image">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="no-image">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="recipe-info">
+                    <h3>{{ recipe.title }}</h3>
+                    <p class="recipe-meta">
+                        <span>{{ recipe.cooking_time }} mins</span>
+                        <span>{{ recipe.difficulty|title }}</span>
+                    </p>
+                    <p class="recipe-description">{{ recipe.description|truncatechars:100 }}</p>
+                    <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View Recipe</a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-results">This user hasn't shared any recipes yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookmarks - Recipe Book{% endblock %}
+
+{% block content %}
+<div class="bookmarks-page">
+    <div class="page-header">
+        <h1>My Bookmarked Recipes</h1>
+    </div>
+    
+    <div class="recipe-grid">
+        {% if bookmarked_recipes %}
+            {% for recipe in bookmarked_recipes %}
+                <div class="recipe-card" data-recipe-id="{{ recipe.id }}">
+                    <div class="recipe-image">
+                        {% if recipe.image %}
+                            <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}">
+                        {% else %}
+                            <div class="no-image">No Image</div>
+                        {% endif %}
+                    </div>
+                    <div class="recipe-info">
+                        <h3>{{ recipe.title }}</h3>
+                        <p class="recipe-meta">
+                            <span>{{ recipe.cooking_time }} mins</span>
+                            <span>{{ recipe.difficulty|title }}</span>
+                        </p>
+                        <p class="recipe-description">{{ recipe.description|truncatechars:100 }}</p>
+                        <div class="recipe-actions">
+                            <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View Recipe</a>
+                            <button class="btn btn-danger remove-bookmark" data-recipe-id="{{ recipe.id }}">Remove Bookmark</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-bookmarks">
+                <p>You haven't bookmarked any recipes yet.</p>
+                <a href="{% url 'recipe_list' %}" class="btn btn-primary">Browse Recipes</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem 0;
+    }
+
+    .recipe-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .recipe-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .recipe-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .recipe-info {
+        padding: 1.5rem;
+    }
+
+    .recipe-info h3 {
+        margin: 0 0 1rem;
+        font-size: 1.25rem;
+    }
+
+    .recipe-meta {
+        display: flex;
+        gap: 1rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .recipe-description {
+        color: #444;
+        margin-bottom: 1.5rem;
+    }
+
+    .recipe-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .no-bookmarks {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .no-bookmarks p {
+        margin-bottom: 1.5rem;
+        color: #666;
+    }
+
+    .no-image {
+        height: 100%;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+
+    .messages {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .message {
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+        color: white;
+        animation: slideIn 0.3s ease;
+    }
+
+    .message.success {
+        background-color: #28a745;
+    }
+
+    .message.error {
+        background-color: #dc3545;
+    }
+
+    .message.info {
+        background-color: #17a2b8;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const removeButtons = document.querySelectorAll('.remove-bookmark');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const recipeId = this.dataset.recipeId;
+                if (confirm('Are you sure you want to remove this bookmark?')) {
+                    fetch(`/recipes/${recipeId}/remove-bookmark/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Remove the recipe card from the grid
+                            const recipeCard = document.querySelector(`.recipe-card[data-recipe-id="${recipeId}"]`);
+                            recipeCard.style.animation = 'fadeOut 0.3s ease';
+                            setTimeout(() => {
+                                recipeCard.remove();
+                                // Check if there are any recipes left
+                                if (document.querySelectorAll('.recipe-card').length === 0) {
+                                    location.reload(); // Reload to show the "no bookmarks" message
+                                }
+                            }, 300);
+                            showMessage('Recipe removed from bookmarks.', 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('Error removing bookmark. Please try again.', 'error');
+                    });
+                }
+            });
+        });
+    });
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Function to show messages
+    function showMessage(message, type) {
+        const messagesContainer = document.querySelector('.messages');
+        if (!messagesContainer) {
+            const container = document.createElement('div');
+            container.className = 'messages';
+            document.body.appendChild(container);
+        }
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${type}`;
+        messageElement.textContent = message;
+        
+        const container = document.querySelector('.messages');
+        container.appendChild(messageElement);
+
+        // Remove the message after 3 seconds
+        setTimeout(() => {
+            messageElement.remove();
+            // Remove the container if it's empty
+            if (container.children.length === 0) {
+                container.remove();
+            }
+        }, 3000);
+    }
+
+    // Add fadeOut animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %} 
